@@ -17,6 +17,19 @@ def _is_admin(config: Config, user_id: int) -> bool:
     return user_id in config.admin_ids
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, parse_mode="HTML")
+        return
+    await msg.answer(text, parse_mode="HTML")
+
+
 @router.message(Command("admin_test"))
 async def admin_test_command(message: Message, config: Config) -> None:
     if message.from_user is None or not _is_admin(config, message.from_user.id):
@@ -58,7 +71,7 @@ async def admin_topup_help(callback: CallbackQuery, config: Config) -> None:
         f"Khi user tạo lệnh <code>/topup</code>, bot sẽ gửi thông báo kèm nút duyệt/từ chối.\n\n"
         f"<i>Bạn chỉ cần bấm nút trong tin nhắn đó.</i>"
     )
-    await callback.message.edit_text(text, parse_mode="HTML")
+    await _edit_or_send(callback, text)
 
 
 @router.callback_query(lambda c: c.data == "admin:mem:help")
@@ -75,7 +88,7 @@ async def admin_mem_help(callback: CallbackQuery, config: Config) -> None:
         f"Khi user xác nhận đơn mem, bot sẽ gửi thông tin đơn vào chat admin.\n\n"
         f"<i>Hiện tại đơn chưa có bước duyệt tự động.</i>"
     )
-    await callback.message.edit_text(text, parse_mode="HTML")
+    await _edit_or_send(callback, text)
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("admin:approve:"))
@@ -102,7 +115,7 @@ async def admin_approve_callback(callback: CallbackQuery, config: Config) -> Non
         f"{SECTION_FOOTER}\n\n"
         f"{ICON_TOPUP} <b>Mã GD:</b> <code>{topup['note']}</code>"
     )
-    await callback.message.edit_text(admin_msg, parse_mode="HTML")
+    await _edit_or_send(callback, admin_msg)
 
     await callback.bot.send_message(int(topup["user_id"]), topup_approved_text(topup["note"]), parse_mode="HTML")
 
@@ -130,6 +143,6 @@ async def admin_reject_callback(callback: CallbackQuery, config: Config) -> None
         f"{SECTION_FOOTER}\n\n"
         f"{ICON_TOPUP} <b>Mã GD:</b> <code>{topup['note']}</code>"
     )
-    await callback.message.edit_text(admin_msg, parse_mode="HTML")
+    await _edit_or_send(callback, admin_msg)
 
     await callback.bot.send_message(int(topup["user_id"]), topup_rejected_text(topup["note"]), parse_mode="HTML")

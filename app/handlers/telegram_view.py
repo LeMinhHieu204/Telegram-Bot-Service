@@ -17,6 +17,18 @@ _tv_pending: set[int] = set()
 _tv_order_pending: dict[int, dict[str, str | int]] = {}
 _tv_selected: dict[int, str] = {}
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
 TV_LABEL_MAP = {
     "tv:positive:active": "Telegram Phản ứng Tích Cực 🔥⚡️🎉🍓🥰😘🤩👻 + Views Đang hoạt động",
     "tv:positive:slow": "Telegram Phản ứng Tích Cực Kết Hợp 🔥🎆🎉🍓🥰😘🤩👻🧠❤️ + Views Chậm",
@@ -46,7 +58,7 @@ async def tv_list_callback(callback: CallbackQuery) -> None:
         f"{ICON_TOPUP} <b>Giá:</b> <b>5k / 1000 view</b> + tăng cảm xúc\n\n"
         f"<i>Chọn gói bạn cần:</i>"
     )
-    await callback.message.edit_text(text, reply_markup=telegram_view_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, text, reply_markup=telegram_view_keyboard())
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("tv:") and c.data not in {"tv:order:confirm", "tv:order:deny"})
@@ -69,7 +81,7 @@ async def tv_type_callback(callback: CallbackQuery) -> None:
         f"<code>https://t.me/ten_group 1000</code>\n\n"
         f"<i>Tối thiểu: 1000</i>"
     )
-    await callback.message.edit_text(text, reply_markup=back_home_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, text, reply_markup=back_home_keyboard())
 
 
 @router.message(lambda message: message.from_user is not None and message.from_user.id in _tv_pending)
@@ -157,14 +169,14 @@ async def tv_order_confirm(callback: CallbackQuery, config: Config) -> None:
         await callback.answer("S??? d?? kh??ng ?????.", show_alert=True)
         return
     _tv_order_pending.pop(callback.from_user.id, None)
-    await callback.message.edit_text(
+    await _edit_or_send(
+        callback,
         f"{ICON_SUCCESS} <b>ĐẶT ĐƠN THÀNH CÔNG</b>\n\n"
         f"{ICON_SERVICES} <b>Gói:</b> {selected_label}\n"
         f"{ICON_INFO} <b>Link:</b> <code>{link}</code>\n"
         f"{ICON_INFO} <b>Số lượng:</b> <b>{quantity}</b>\n"
         f"{ICON_TOPUP} <b>Giá:</b> 5k / 1000 view + tăng cảm xúc",
         reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
     )
     user_id = callback.from_user.id
     user_name = callback.from_user.full_name or "Unknown"
@@ -194,9 +206,9 @@ async def tv_order_deny(callback: CallbackQuery) -> None:
         return
     from app.utils.icons import ICON_ERROR
     _tv_order_pending.pop(callback.from_user.id, None)
-    await callback.message.edit_text(
+    await _edit_or_send(
+        callback,
         f"{ICON_ERROR} <b>Đã hủy</b>\n\n"
         f"Vui lòng nhập lại: <code>link số_lượng</code>",
         reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
     )

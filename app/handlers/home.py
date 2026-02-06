@@ -18,6 +18,19 @@ def _is_admin(config: Config, user_id: int) -> bool:
     return user_id in config.admin_ids
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
+
 async def _render_home(message_or_callback: Message | CallbackQuery, config: Config) -> None:
     user = message_or_callback.from_user
     if user is None:
@@ -44,7 +57,16 @@ async def _render_home(message_or_callback: Message | CallbackQuery, config: Con
             return
         await message_or_callback.answer(text, reply_markup=keyboard, parse_mode="HTML")
     else:
-        await message_or_callback.message.edit_text(text, reply_markup=keyboard, parse_mode="HTML")
+        msg = message_or_callback.message
+        if msg is None:
+            return
+        if msg.text:
+            await msg.edit_text(text, reply_markup=keyboard, parse_mode="HTML")
+            return
+        if msg.caption is not None:
+            await msg.edit_caption(caption=text, reply_markup=keyboard, parse_mode="HTML")
+            return
+        await msg.answer(text, reply_markup=keyboard, parse_mode="HTML")
 
 
 @router.message(CommandStart())
@@ -103,4 +125,4 @@ async def home_callback(callback: CallbackQuery, config: Config) -> None:
 
 @router.callback_query(lambda c: c.data == "bot:hire")
 async def bot_hire_callback(callback: CallbackQuery) -> None:
-    await callback.message.edit_text(bot_hire_text(), reply_markup=back_home_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, bot_hire_text(), reply_markup=back_home_keyboard())

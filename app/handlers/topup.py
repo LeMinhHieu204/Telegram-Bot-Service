@@ -17,6 +17,19 @@ router = Router()
 _topup_pending: set[int] = set()
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
+
 def _sepay_enabled(config: Config) -> bool:
     return bool(config.sepay_account_number and config.sepay_bank_name)
 
@@ -31,7 +44,7 @@ def _build_sepay_qr_url(config: Config, amount: int, note: str) -> str:
 @router.callback_query(lambda c: c.data == "topup:info")
 async def topup_info_callback(callback: CallbackQuery, config: Config) -> None:
     if not _sepay_enabled(config):
-        await callback.message.edit_text(topup_info_text(), reply_markup=back_home_keyboard(), parse_mode="HTML")
+        await _edit_or_send(callback, topup_info_text(), reply_markup=back_home_keyboard())
         return
     if callback.from_user is None:
         return
@@ -42,7 +55,7 @@ async def topup_info_callback(callback: CallbackQuery, config: Config) -> None:
         f"{ICON_INFO} <i>Nhập số tiền bạn muốn nạp (VNĐ).</i>\n"
         f"Ví dụ: <code>200000</code>"
     )
-    await callback.message.edit_text(text, reply_markup=back_home_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, text, reply_markup=back_home_keyboard())
 
 
 @router.message(Command("topup"))

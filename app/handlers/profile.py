@@ -12,6 +12,19 @@ from app.utils.text import profile_text
 router = Router()
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
+
 @router.callback_query(lambda c: c.data == "profile:show")
 async def profile_callback(callback: CallbackQuery, config: Config) -> None:
     user = callback.from_user
@@ -20,8 +33,4 @@ async def profile_callback(callback: CallbackQuery, config: Config) -> None:
     await get_or_create_user(config.db_path, user.id)
     balance = await get_balance(config.db_path, user.id)
     name = user.full_name or "Unknown"
-    await callback.message.edit_text(
-        profile_text(user.id, name, balance),
-        reply_markup=profile_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, profile_text(user.id, name, balance), reply_markup=profile_keyboard())

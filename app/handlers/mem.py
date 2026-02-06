@@ -25,6 +25,19 @@ _mem_viet_pending: dict[int, dict[str, str | int]] = {}
 _mem_viet_option: dict[int, str] = {}
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
+
 @router.callback_query(lambda c: c.data == "mem:list")
 async def mem_list_callback(callback: CallbackQuery) -> None:
     text = (
@@ -33,54 +46,38 @@ async def mem_list_callback(callback: CallbackQuery) -> None:
         f"{SECTION_FOOTER}\n\n"
         f"<i>Hãy chọn loại mem bạn muốn:</i>"
     )
-    await callback.message.edit_text(text, reply_markup=mem_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, text, reply_markup=mem_keyboard())
 
 
 @router.callback_query(lambda c: c.data == "pull:list")
 async def pull_list_callback(callback: CallbackQuery) -> None:
     from app.utils.text import pull_mem_text
-    await callback.message.edit_text(
-        pull_mem_text(),
-        reply_markup=pull_mem_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, pull_mem_text(), reply_markup=pull_mem_keyboard())
 
 
 @router.callback_query(lambda c: c.data == "pull:competitor")
 async def pull_competitor_callback(callback: CallbackQuery) -> None:
     from app.utils.text import pull_competitor_text
-    await callback.message.edit_text(
-        pull_competitor_text(),
-        reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, pull_competitor_text(), reply_markup=back_home_keyboard())
 
 
 @router.callback_query(lambda c: c.data == "mem:type:foreign")
 async def mem_foreign_list_callback(callback: CallbackQuery) -> None:
     from app.utils.text import mem_foreign_text
-    await callback.message.edit_text(
-        mem_foreign_text(),
-        reply_markup=mem_foreign_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, mem_foreign_text(), reply_markup=mem_foreign_keyboard())
 
 
 @router.callback_query(lambda c: c.data == "mem:type:viet")
 async def mem_viet_list_callback(callback: CallbackQuery) -> None:
     from app.utils.text import mem_viet_text
-    await callback.message.edit_text(
-        mem_viet_text(),
-        reply_markup=mem_viet_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, mem_viet_text(), reply_markup=mem_viet_keyboard())
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("mem:type:") and c.data not in {"mem:type:foreign", "mem:type:viet"})
 async def mem_type_callback(callback: CallbackQuery) -> None:
     from app.utils.text import mem_price_text
     mem_type = callback.data.split(":", 2)[2] if callback.data else ""
-    await callback.message.edit_text(mem_price_text(mem_type), reply_markup=back_home_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, mem_price_text(mem_type), reply_markup=back_home_keyboard())
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("mem:foreign:"))
@@ -89,11 +86,7 @@ async def mem_foreign_type_callback(callback: CallbackQuery) -> None:
     option = callback.data.split(":", 2)[2] if callback.data else ""
     if callback.from_user:
         _mem_foreign_option[callback.from_user.id] = option
-    await callback.message.edit_text(
-        mem_foreign_price_text(option),
-        reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, mem_foreign_price_text(option), reply_markup=back_home_keyboard())
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("mem:viet:"))
@@ -102,11 +95,7 @@ async def mem_viet_type_callback(callback: CallbackQuery) -> None:
     option = callback.data.split(":", 2)[2] if callback.data else ""
     if callback.from_user:
         _mem_viet_option[callback.from_user.id] = option
-    await callback.message.edit_text(
-        mem_viet_price_text(option),
-        reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, mem_viet_price_text(option), reply_markup=back_home_keyboard())
 
 
 def _is_mem_order_message(message: Message) -> bool:
@@ -206,11 +195,7 @@ async def mem_foreign_order_confirm(callback: CallbackQuery, config: Config) -> 
     else:
         from app.utils.text import mem_viet_order_created_text
         user_text = mem_viet_order_created_text(option, link, quantity, order_id)
-    await callback.message.edit_text(
-        user_text,
-        reply_markup=back_home_keyboard(),
-        parse_mode="HTML",
-    )
+    await _edit_or_send(callback, user_text, reply_markup=back_home_keyboard())
     user_id = callback.from_user.id
     user_name = callback.from_user.full_name or "Unknown"
     
@@ -270,12 +255,12 @@ async def mem_foreign_order_confirm(callback: CallbackQuery, config: Config) -> 
     if balance < total_price:
         from app.utils.icons import ICON_ERROR, ICON_TOPUP
         await callback.answer("So du khong du.", show_alert=True)
-        await callback.message.edit_text(
+        await _edit_or_send(
+            callback,
             f"{ICON_ERROR} <b>So du khong du!</b>\n\n"
             f"{ICON_TOPUP} <b>Can:</b> <b>{total_price:,} vnd</b>\n"
             f"{ICON_TOPUP} <b>So du:</b> <b>{balance:,} vnd</b>",
             reply_markup=back_home_keyboard(),
-            parse_mode="HTML",
         )
         return
     deducted = await deduct_balance(config.db_path, callback.from_user.id, total_price)
@@ -315,18 +300,10 @@ async def mem_foreign_order_deny(callback: CallbackQuery) -> None:
     if data is not None:
         option = _mem_foreign_option.get(callback.from_user.id, "")
         from app.utils.text import mem_foreign_price_text
-        await callback.message.edit_text(
-            mem_foreign_price_text(option),
-            reply_markup=back_home_keyboard(),
-            parse_mode="HTML",
-        )
+        await _edit_or_send(callback, mem_foreign_price_text(option), reply_markup=back_home_keyboard())
         return
     data = _mem_viet_pending.pop(callback.from_user.id, None)
     if data is not None:
         option = _mem_viet_option.get(callback.from_user.id, "")
         from app.utils.text import mem_viet_price_text
-        await callback.message.edit_text(
-            mem_viet_price_text(option),
-            reply_markup=back_home_keyboard(),
-            parse_mode="HTML",
-        )
+        await _edit_or_send(callback, mem_viet_price_text(option), reply_markup=back_home_keyboard())

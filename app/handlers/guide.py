@@ -10,6 +10,19 @@ from app.utils.text import guide_text
 router = Router()
 
 
+async def _edit_or_send(callback: CallbackQuery, text: str, reply_markup=None) -> None:
+    msg = callback.message
+    if msg is None:
+        return
+    if msg.text:
+        await msg.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    if msg.caption is not None:
+        await msg.edit_caption(caption=text, reply_markup=reply_markup, parse_mode="HTML")
+        return
+    await msg.answer(text, reply_markup=reply_markup, parse_mode="HTML")
+
+
 @router.callback_query(lambda c: c.data == "guide:show")
 async def guide_callback(callback: CallbackQuery) -> None:
-    await callback.message.edit_text(guide_text(), reply_markup=back_home_keyboard(), parse_mode="HTML")
+    await _edit_or_send(callback, guide_text(), reply_markup=back_home_keyboard())
