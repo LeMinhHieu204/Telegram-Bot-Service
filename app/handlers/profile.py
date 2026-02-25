@@ -30,7 +30,7 @@ async def profile_callback(callback: CallbackQuery, config: Config) -> None:
     user = callback.from_user
     if user is None:
         return
-    await get_or_create_user(config.db_path, user.id)
+    await get_or_create_user(config.db_path, user.id, user.username)
     balance = await get_balance(config.db_path, user.id)
     name = user.full_name or "Unknown"
     await _edit_or_send(callback, profile_text(user.id, name, balance), reply_markup=profile_keyboard())

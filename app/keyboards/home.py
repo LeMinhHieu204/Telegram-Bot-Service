@@ -25,9 +25,12 @@ def home_keyboard() -> InlineKeyboardMarkup:
 
 def admin_home_keyboard() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    from app.utils.icons import ICON_TOPUP, ICON_MEM, ICON_USER
+    from app.utils.icons import ICON_TOPUP, ICON_MEM, ICON_USER, ICON_WALLET, ICON_PROFILE
     kb.button(text=f"{ICON_TOPUP} Yêu cầu nạp tiền", callback_data="admin:topup:help")
+    kb.button(text=f"{ICON_TOPUP} Nạp thủ công theo user", callback_data="admin:manual_topup:start")
+    kb.button(text=f"{ICON_WALLET} Check ví user", callback_data="admin:wallet_check:start")
+    kb.button(text=f"{ICON_PROFILE} DS user đã /start", callback_data="admin:users:list")
     kb.button(text=f"{ICON_MEM} Đơn mem", callback_data="admin:mem:help")
     kb.button(text=f"{ICON_USER} Về giao diện user", callback_data="home:show")
-    kb.adjust(1, 1, 1)
+    kb.adjust(1, 1, 1, 1, 1, 1)
     return kb.as_markup()

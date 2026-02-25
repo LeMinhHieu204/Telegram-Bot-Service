@@ -9,10 +9,16 @@ async def init_db(db_path: str) -> None:
             """
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY,
-                balance INTEGER NOT NULL DEFAULT 0
+                balance INTEGER NOT NULL DEFAULT 0,
+                username TEXT
             )
             """
         )
+        try:
+            await db.execute("ALTER TABLE users ADD COLUMN username TEXT")
+        except Exception:
+            # Column already exists on upgraded databases.
+            pass
         await db.execute(
             """
             CREATE TABLE IF NOT EXISTS topups (

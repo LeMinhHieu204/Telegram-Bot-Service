@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from app.config import Config
 from app.db.topups import create_topup, get_topup
+from app.db.users import get_or_create_user
 from app.keyboards.common import back_home_keyboard
 from app.keyboards.admin import topup_admin_keyboard
 from app.utils.text import topup_created_text, topup_info_text
@@ -153,6 +154,11 @@ async def topup_check_callback(callback: CallbackQuery, config: Config) -> None:
 
 
 async def _create_topup_flow(message: Message, config: Config, amount: int) -> None:
+    await get_or_create_user(
+        config.db_path,
+        message.from_user.id,
+        message.from_user.username if message.from_user else None,
+    )
     topup_id = await create_topup(config.db_path, message.from_user.id, amount, note="")
     note = f"NAP{message.from_user.id}-{amount}-{topup_id}"
 

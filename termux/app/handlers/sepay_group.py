@@ -11,7 +11,7 @@ from app.db.users import list_user_ids
 
 
 router = Router()
-@router.message()
+@router.message(lambda m: m.chat is not None and m.chat.type in {"group", "supergroup"})
 async def sepay_group_message(message: Message, config: Config) -> None:
     if not config.sepay_group_id:
         return

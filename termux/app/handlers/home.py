@@ -35,7 +35,7 @@ async def _render_home(message_or_callback: Message | CallbackQuery, config: Con
     user = message_or_callback.from_user
     if user is None:
         return
-    await get_or_create_user(config.db_path, user.id)
+    await get_or_create_user(config.db_path, user.id, user.username)
     balance = await get_balance(config.db_path, user.id)
     name = user.full_name or "Unknown"
     is_admin = user.id in config.admin_ids
@@ -69,9 +69,31 @@ async def _render_home(message_or_callback: Message | CallbackQuery, config: Con
         await msg.answer(text, reply_markup=keyboard, parse_mode="HTML")
 
 
+async def _notify_admin_user_started(message: Message, config: Config) -> None:
+    user = message.from_user
+    if user is None:
+        return
+    if user.id in config.admin_ids:
+        return
+    username = f"@{user.username}" if user.username else "chưa có"
+    name = user.full_name or "Unknown"
+    text = (
+        "🔔 <b>USER VỪA BẤM /START</b>\n\n"
+        f"Username: <code>{username}</code>\n"
+        f"User ID: <code>{user.id}</code>\n"
+        f"Name: <code>{name}</code>"
+    )
+    for admin_id in config.admin_ids:
+        try:
+            await message.bot.send_message(admin_id, text, parse_mode="HTML")
+        except Exception:
+            continue
+
+
 @router.message(CommandStart())
 async def start_handler(message: Message, config: Config) -> None:
     await _render_home(message, config)
+    await _notify_admin_user_started(message, config)
 
 
 @router.message(Command("admin_test"))

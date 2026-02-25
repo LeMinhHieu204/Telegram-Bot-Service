@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from app.config import load_config
 from app.db.schema import init_db
 from app.handlers import admin, guide, home, mem, profile, services, terms, topup, telegram_view, sepay_group
+from app.middlewares.access_control import AccessControlMiddleware
 from app.webhooks import create_sepay_app
 from app.sepay_polling import run_polling
 
@@ -20,6 +21,9 @@ async def main() -> None:
 
     bot = Bot(token=config.bot_token)
     dp = Dispatcher()
+    access_control = AccessControlMiddleware()
+    dp.message.middleware(access_control)
+    dp.callback_query.middleware(access_control)
 
     dp.include_router(home.router)
     dp.include_router(guide.router)

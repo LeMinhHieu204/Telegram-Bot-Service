@@ -19,6 +19,19 @@ def _parse_admin_ids(raw: str | None) -> List[int]:
     return ids
 
 
+def _parse_id_list(raw: str | None) -> List[int]:
+    if not raw:
+        return []
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    ids: List[int] = []
+    for p in parts:
+        try:
+            ids.append(int(p))
+        except ValueError:
+            continue
+    return ids
+
+
 @dataclass(frozen=True)
 class Config:
     bot_token: str
@@ -31,6 +44,7 @@ class Config:
     sepay_webhook_port: int
     sepay_group_id: int
     welcome_gif_id: str
+    maintenance_allow_ids: List[int]
 
 
 def load_config() -> Config:
@@ -44,6 +58,7 @@ def load_config() -> Config:
     sepay_webhook_port = int(os.getenv("SEPAY_WEBHOOK_PORT", "8080").strip() or "8080")
     sepay_group_id = int(os.getenv("SEPAY_GROUP_ID", "0").strip() or "0")
     welcome_gif_id = os.getenv("WELCOME_GIF_ID", "").strip()
+    maintenance_allow_ids = _parse_id_list(os.getenv("MAINTENANCE_ALLOW_IDS"))
     if not bot_token:
         raise RuntimeError("BOT_TOKEN is required")
     return Config(
@@ -57,4 +72,5 @@ def load_config() -> Config:
         sepay_webhook_port=sepay_webhook_port,
         sepay_group_id=sepay_group_id,
         welcome_gif_id=welcome_gif_id,
+        maintenance_allow_ids=maintenance_allow_ids,
     )
