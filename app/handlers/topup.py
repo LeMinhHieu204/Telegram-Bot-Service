@@ -54,7 +54,8 @@ async def topup_info_callback(callback: CallbackQuery, config: Config) -> None:
     text = (
         f"{ICON_TOPUP} <b>NẠP TIỀN TỰ ĐỘNG</b>\n\n"
         f"{ICON_INFO} <i>Nhập số tiền bạn muốn nạp (VNĐ).</i>\n"
-        f"Ví dụ: <code>200000</code>"
+        f"Ví dụ: <code>200000</code>\n\n"
+        f"<i>Nếu lỗi khi nạp, vui lòng ib admin: @Jimmy3212</i>"
     )
     await _edit_or_send(callback, text, reply_markup=back_home_keyboard())
 

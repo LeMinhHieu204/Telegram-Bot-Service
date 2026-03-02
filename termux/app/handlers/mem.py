@@ -104,6 +104,11 @@ def _is_mem_order_message(message: Message) -> bool:
     user_id = message.from_user.id
     if user_id not in _mem_foreign_option and user_id not in _mem_viet_option:
         return False
+    # Topup flow also expects a plain text amount. If we keep the stale mem
+    # selection active, this handler will incorrectly consume the amount input.
+    from app.handlers.topup import _topup_pending
+    if user_id in _topup_pending:
+        return False
     # If user is in Telegram View flow, let that handler process the message.
     from app.handlers.telegram_view import _tv_pending, _tv_order_pending
     if user_id in _tv_pending or user_id in _tv_order_pending:
