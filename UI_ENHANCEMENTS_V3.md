@@ -55,7 +55,7 @@
 ┌─────────────────────────┐
 │ 💳 Thông tin tài khoản  │
 │ ━━━━━━━━━━━━━━━━━━━━━  │
-│ 👤 ID: 123456789        │
+│ 👤 ID: USER_ID          │
 │ 📝 Tên: JimMi           │
 │ 💵 Số dư: 500,000 VND   │
 └─────────────────────────┘
@@ -63,7 +63,7 @@
 
 ### 7. **Transaction Details Format** 💱
 ```
-🔑 <b>Mã GD:</b> <code>NAP123456789</code>
+🔑 <b>Mã GD:</b> <code>TX_CODE</code>
 💰 <b>Số tiền:</b> <b>200,000 VND</b>
 ⏰ <b>Thời gian:</b> <i>Chờ xác nhận</i>
 ```
@@ -92,7 +92,7 @@
 ```
 🎉 NẠP TIỀN THÀNH CÔNG
 
-Mã GD: NAP123456789-200000-1
+Mã GD: TX_CODE-200000-1
 
 Số tiền đã được cập nhật!
 ```
@@ -103,7 +103,7 @@ Số tiền đã được cập nhật!
 ┃ 🎉 NẠP TIỀN THÀNH CÔ ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━┛
 
-🔑 <b>Mã GD:</b> <code>NAP123456789</code>
+🔑 <b>Mã GD:</b> <code>TX_CODE</code>
 
 ✅ <b>Trạng thái:</b> <i>Đã cập nhật vào tài khoản</i>
 ```

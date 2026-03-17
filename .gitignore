@@ -1,0 +1,5 @@
+.env
+termux/.env
+*.session
+*.session-journal
+bot.sqlite3

@@ -60,7 +60,7 @@ Mỗi màn hình đều có:
 🏠 TELEGRAM SHOP BOT 🏠
 └──────────────────────────────┘
 
-👤 UserID: 123456789
+👤 UserID: USER_ID
 💳 Số dư ví: 500.000 ₫
 
 ⚠️ Vui lòng xem hướng dẫn trước khi sử dụng!

@@ -82,7 +82,7 @@ Nội dung chính
 **Trước:**
 ```
 Chào mừng bạn đến với Telegram Shop Bot!
-UserID: 123456789
+UserID: USER_ID
 Số dư ví: 500.000
 ```
 
@@ -92,7 +92,7 @@ Số dư ví: 500.000
 🏠 TELEGRAM SHOP BOT 🏠
 └──────────────────────────────┘
 
-👤 UserID: 123456789
+👤 UserID: USER_ID
 💳 Số dư ví: 500.000 ₫
 
 ⚠️ Vui lòng xem hướng dẫn trước khi sử dụng!

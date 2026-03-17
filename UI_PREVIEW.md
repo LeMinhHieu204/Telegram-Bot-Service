@@ -6,7 +6,7 @@
 🏠 TELEGRAM SHOP BOT 🏠
 └──────────────────────────────┘
 
-👤 UserID: 123456789
+👤 UserID: USER_ID
 💳 Số dư ví: 500.000 ₫
 
 ⚠️ Vui lòng xem hướng dẫn trước khi sử dụng!
@@ -23,7 +23,7 @@
 └──────────────────────────────┘
 
 👤 User ID:
-   123456789
+   USER_ID
 
 💳 Số dư hiện tại:
    500.000 ₫
@@ -78,7 +78,7 @@ Admin sẽ xác nhận trong thời gian sớm nhất!
 
 ⏳ Trạng thái: Chờ xác nhận
 
-Mã GD: NAP123456789-200000-1
+Mã GD: TX_CODE-200000-1
 
 Vui lòng chờ admin duyệt phiếu của bạn...
 ```
@@ -87,7 +87,7 @@ Vui lòng chờ admin duyệt phiếu của bạn...
 ```
 🎉 NẠP TIỀN THÀNH CÔNG
 
-Mã GD: NAP123456789-200000-1
+Mã GD: TX_CODE-200000-1
 
 Số tiền đã được cập nhật vào tài khoản của bạn!
 ```
@@ -96,7 +96,7 @@ Số tiền đã được cập nhật vào tài khoản của bạn!
 ```
 ❌ PHIẾU NẠP TIỀN BỊ TỪ CHỐI
 
-Mã GD: NAP123456789-200000-1
+Mã GD: TX_CODE-200000-1
 
 Vui lòng liên hệ admin để tìm hiểu thêm.
 ```

@@ -26,7 +26,7 @@
 ─────────────────────
 
 👥 User ID:
-   [123456789]
+   [USER_ID]
 
 👥 Tên:
    [JimMi | Service Telegram]
@@ -139,7 +139,7 @@
 🏠 TELEGRAM SHOP BOT 🏠
 └─────────────────────────┘
 
-👤 UserID: 123456789
+👤 UserID: USER_ID
 👤 Name: JimMi
 💳 Số dư ví: 500,000 ₫
 
@@ -156,7 +156,7 @@
 ─────────────────────
 
 👥 User ID:
-   123456789
+   USER_ID
 
 👥 Tên:
    JimMi | Service Telegram
